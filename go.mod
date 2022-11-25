@@ -1,4 +1,4 @@
-module pulsarclient
+module github.com/nicelogic/pulsarclient
 
 go 1.19
 
