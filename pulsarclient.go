@@ -9,19 +9,16 @@ import (
 	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/nicelogic/config"
 )
-
 type Client struct {
 	Client   pulsar.Client
-	Producer pulsar.Producer
 }
-
 type clientConfig struct {
 	Url                string
 	Operation_timeout  int
 	Connection_timeout int
 }
 
-func (client *Client) Init(configFilePath string, topic string) (err error) {
+func (client *Client) Init(configFilePath string) (err error) {
 	clientConfig := clientConfig{}
 	err = config.Init(configFilePath, &clientConfig)
 	if err != nil {
@@ -39,32 +36,7 @@ func (client *Client) Init(configFilePath string, topic string) (err error) {
 	if err != nil {
 		log.Fatalf("Could not instantiate Pulsar client: %v", err)
 	}
-
-	client.Producer, err = client.Client.CreateProducer(pulsar.ProducerOptions{
-		Topic: topic,
-	})
-	if err != nil {
-		log.Printf("create producer err: %v\n", err)
-		return err
-	}
 	return err
-}
-
-func (client *Client) Send(ctx context.Context, msg any) (msgId pulsar.MessageID, err error) {
-	payload, err := json.Marshal(msg)
-	if err != nil {
-		log.Printf("json marshal err: %v\n", err)
-		return nil, err
-	}
-	msgId, err = client.Producer.Send(ctx, &pulsar.ProducerMessage{
-		Payload: payload,
-	})
-	if err != nil {
-		log.Printf("producer send err: %v\n", err)
-		return nil, err
-	}
-	log.Printf("producer send addcontactsapply ntf success, msgID: %v\n", msgId)
-	return msgId, err
 }
 
 func (client *Client) Receive(ctx context.Context, consumer pulsar.Consumer, msg any)(err error){
